@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { setCurrentImage } from "./currentImageSlice";
+import { setCurrentImage, addImage } from "./currentImageSlice";
 
 export const uploadImage = createAsyncThunk(
   "imageUpload/uploadImage",
@@ -14,6 +14,7 @@ export const uploadImage = createAsyncThunk(
         { headers: { "Content-Type": "multipart/form-data" } },
       );
       dispatch(setCurrentImage(response.data));
+      dispatch(addImage(response.data));
       dispatch(imageUploaded(response.data));
       return response.data;
     } catch (error) {
@@ -41,7 +42,7 @@ export const imageUploadSlice = createSlice({
       state.status = "succeeded";
       state.file = action.payload;
       state.error = null;
-      state.snackbarOpen = false;
+      state.snackbarOpen = true;
     },
     imageUploadError(state, action) {
       state.status = "failed";

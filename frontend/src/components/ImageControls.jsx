@@ -1,7 +1,16 @@
-import { useDispatch } from "react-redux";
-import { setTransformations } from "../redux/currentImageSlice";
-import { resetUpload } from "../redux/imageUploadSlice"; // Import the reset action
-import { Slider, Typography, Grid, Button } from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setImageError,
+  setTransformations,
+  resetTransformations,
+  addImage,
+  updateImage,
+  removeImageAndUpdateCurrent,
+  clearImages,
+  setImageError as setAllImagesError,
+} from "../redux/currentImageSlice";
+import { resetUpload } from "../redux/imageUploadSlice";
+import { Slider, Typography, Grid, Button, TextField } from "@mui/material";
 
 function ImageControls() {
   const dispatch = useDispatch();
@@ -14,8 +23,29 @@ function ImageControls() {
     dispatch(setTransformations({ rotate: angle }));
   };
 
+  const handleResetTransfromations = () => {
+    dispatch(resetTransformations());
+  };
   const handleReset = () => {
     dispatch(resetUpload());
+    dispatch(clearImages());
+  };
+
+  const handleAddImage = () => {
+    const newImage = { id: Date.now(), filename: "newimage.dcm" }; // Example image object
+    dispatch(addImage(newImage));
+  };
+  const handleRemoveImage = (filename) => {
+    dispatch(removeImageAndUpdateCurrent(filename));
+  };
+  const handleUpdateImage = (id) => {
+    const updatedInfo = { id: id, data: { filename: "updatedimage.dcm" } }; // Example update
+    dispatch(updateImage(updatedInfo));
+  };
+
+  const handleError = (error) => {
+    dispatch(setImageError(error));
+    dispatch(setAllImagesError(error));
   };
 
   return (
@@ -25,30 +55,37 @@ function ImageControls() {
         <Grid item xs={12}>
           <Typography gutterBottom>Zoom</Typography>
           <Slider
-            defaultValue={100}
+            onChangeCommitted={handleZoomChange}
             aria-labelledby="zoom-slider"
             valueLabelDisplay="auto"
-            step={10}
+            step={1}
             marks
             min={50}
             max={200}
-            onChangeCommitted={handleZoomChange}
           />
         </Grid>
         <Grid item xs={12}>
           <Typography gutterBottom>Rotate</Typography>
-          <Button variant="contained" onClick={handleRotate(90)}>
-            Rotate 90°
+          <Button variant="contained" onClick={handleRotate(45)}>
+            Rotate 45°
           </Button>
           <Button
             variant="contained"
-            onClick={handleRotate(-90)}
+            onClick={handleRotate(-45)}
             style={{ marginLeft: "10px" }}
           >
-            Rotate -90°
+            Rotate -45°
           </Button>
         </Grid>
         <Grid item xs={12}>
+          <Button
+            variant="outlined"
+            onClick={handleResetTransfromations}
+            color="secondary"
+            style={{ marginTop: "20px", marginRight: "10px" }}
+          >
+            Reset Transformations
+          </Button>
           <Button
             variant="outlined"
             onClick={handleReset}
@@ -56,6 +93,52 @@ function ImageControls() {
             style={{ marginTop: "20px" }}
           >
             Reset Upload and Transformations
+          </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <Button variant="contained" onClick={handleAddImage}>
+            Add Image
+          </Button>
+          <TextField
+            id="image-id"
+            label="Image ID"
+            variant="outlined"
+            size="small"
+            style={{ marginLeft: "10px" }}
+          />
+          <Button
+            variant="contained"
+            onClick={() =>
+              handleRemoveImage(document.getElementById("image-id").value)
+            }
+          >
+            Remove Image
+          </Button>
+          <Button
+            variant="contained"
+            onClick={() =>
+              handleUpdateImage(document.getElementById("image-id").value)
+            }
+            style={{ marginLeft: "10px" }}
+          >
+            Update Image
+          </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            id="error-text"
+            label="Error Message"
+            variant="outlined"
+            size="small"
+          />
+          <Button
+            variant="contained"
+            onClick={() =>
+              handleError(document.getElementById("error-text").value)
+            }
+            style={{ marginLeft: "10px" }}
+          >
+            Set Error
           </Button>
         </Grid>
       </Grid>

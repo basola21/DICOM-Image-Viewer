@@ -1,22 +1,24 @@
 import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useDropzone } from "react-dropzone";
+import { Box, Snackbar, Alert, CircularProgress } from "@mui/material";
 import {
   uploadImage,
   toggleSnackbar,
   startUpload,
   imageUploadError,
 } from "../redux/imageUploadSlice";
-import { useDropzone } from "react-dropzone";
-import { Box, Snackbar, Alert, CircularProgress } from "@mui/material";
 import validateFile from "../utils/validateFileType";
-
 function ImageUploader() {
   const dispatch = useDispatch();
-  const { error, status, snackbarOpen } = useSelector(
-    (state) => state.imageUpload,
-  );
-  const loading = status === "loading";
 
+  const { error, status, snackbarOpen } = useSelector((state) => ({
+    error: state.imageUpload.error,
+    status: state.imageUpload.status,
+    snackbarOpen: state.imageUpload.snackbarOpen,
+  }));
+
+  const loading = status === "loading";
   const onDrop = useCallback(
     (acceptedFiles) => {
       acceptedFiles.forEach((file) => {
@@ -52,11 +54,6 @@ function ImageUploader() {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      "image/dicom": [".dicom", ".dcm"],
-      "application/dicom": [".dicom", ".dcm"],
-      "application/dcm": [".dcm"],
-    },
     multiple: true,
   });
 
@@ -88,13 +85,14 @@ function ImageUploader() {
           </p>
         )}
       </Box>
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={handleClose}
       >
         <Alert onClose={handleClose} severity="error" sx={{ width: "100%" }}>
-          {error}
+          {error || "Unknown error"}
         </Alert>
       </Snackbar>
     </div>
