@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "medicalimageviewer backend"
+version = "0.1.0"
+description = ""
+authors = ["Basel Mahmoud <basel21mahmoud@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+flask = "^3.0.3"
+pydicom = "^2.4.4"
+pillow = "^10.3.0"
+pynetdicom = "^2.0.2"
+flask-cors = "^4.0.0"
+flask-smorest = "^0.44.0"
+numpy = "^1.26.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
