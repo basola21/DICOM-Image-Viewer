@@ -59,7 +59,7 @@ function ImageUploader() {
 
   return (
     <div {...getRootProps()} className="cursor-pointer">
-      <input {...getInputProps()} />
+      <input {...getInputProps()} disabled={loading} />
       <Box
         sx={{
           p: 2,

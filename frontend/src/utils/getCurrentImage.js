@@ -1,7 +1,8 @@
 import axios from "axios";
 
 async function getCurrentImage(filename) {
-  const url = `http://localhost:5000/images/${filename}`;
+  const baseURL = import.meta.env.VITE_API_URL || "http://localhost:5100";
+  const url = `${baseURL}/images/${filename}`;
 
   return axios
     .get(url, { responseType: "blob" })

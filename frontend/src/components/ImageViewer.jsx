@@ -42,8 +42,9 @@ function ImageViewer() {
   }, [transformations, effects]);
 
   const loadAndDisplayImage = useCallback(() => {
+    const apiURL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5100";
     if (imageData && imageElement.current) {
-      const imageId = `wadouri:http://127.0.0.1:5000/images/${encodeURIComponent(imageData.filename)}`;
+      const imageId = `wadouri:${apiURL}/images/${encodeURIComponent(imageData.filename)}`;
       cornerstone.enable(imageElement.current);
       cornerstone
         .loadImage(imageId)

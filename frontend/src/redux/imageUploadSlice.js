@@ -8,11 +8,10 @@ export const uploadImage = createAsyncThunk(
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const response = await axios.post(
-        "http://127.0.0.1:5000/upload/",
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" } },
-      );
+      const apiURL = import.meta.env.VITE_API_URL || "http://127.0.0.1:5100";
+      const response = await axios.post(`${apiURL}/upload/`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       dispatch(setCurrentImage(response.data));
       dispatch(addImage(response.data));
       dispatch(imageUploaded(response.data));
