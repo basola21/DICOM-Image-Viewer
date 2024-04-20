@@ -1,9 +1,17 @@
-import React, { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import * as cornerstone from "cornerstone-core";
 import * as cornerstoneWADOImageLoader from "cornerstone-wado-image-loader";
 import * as dicomParser from "dicom-parser";
-import { Card, Typography, Grid, Snackbar, Button } from "@mui/material";
+import {
+  Card,
+  Typography,
+  Grid,
+  Snackbar,
+  Button,
+  Switch,
+  FormControlLabel,
+} from "@mui/material";
 import {
   setCurrentImage,
   setImageError,
@@ -11,6 +19,7 @@ import {
   resetTransformations,
   removeImage,
 } from "../redux/currentImageSlice";
+import { analyzeImage, resetKeypoints } from "../redux/imageAnalysisSlice";
 
 function ImageViewer() {
   const imageData = useSelector((state) => state.currentImage.currentImageData);
@@ -22,6 +31,51 @@ function ImageViewer() {
   const allImages = useSelector((state) => state.currentImage.allImages);
   const dispatch = useDispatch();
   const imageElement = useRef(null);
+  const canvasRef = useRef(null);
+  const {
+    keypoints: analysisKeypoints,
+    isLoading: isAnalysisLoading,
+    error: analysisError,
+  } = useSelector((state) => state.imageAnalysis);
+
+  const drawKeypoints = useCallback(() => {
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+    const { rotate, zoom, panX, panY } = transformations; // Destructure the transformations from state
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    context.save();
+
+    context.translate(canvas.width / 2 + panX, canvas.height / 2 + panY);
+    context.rotate((rotate * Math.PI) / 180); // Convert degrees to radians and rotate
+    context.scale(zoom, zoom);
+    context.translate(-canvas.width / 2, -canvas.height / 2);
+
+    context.fillStyle = "yellow";
+    context.strokeStyle = "black";
+    context.lineWidth = 1;
+
+    analysisKeypoints.forEach((point) => {
+      context.beginPath();
+      context.arc(point.x, point.y, 5, 0, 2 * Math.PI);
+      context.fill();
+      context.stroke();
+    });
+
+    context.restore();
+  }, [analysisKeypoints, transformations]);
+
+  const handleAnalyzeImage = useCallback(
+    (action) => {
+      if (action === "analyze" && imageData) {
+        dispatch(analyzeImage(imageData.filename));
+      } else {
+        dispatch(resetKeypoints());
+      }
+    },
+    [dispatch, imageData],
+  );
 
   const applyTransformations = useCallback(() => {
     if (!imageElement.current) {
@@ -51,6 +105,9 @@ function ImageViewer() {
         .then((image) => {
           cornerstone.displayImage(imageElement.current, image);
           applyTransformations();
+          if (analysisKeypoints.length > 0) {
+            drawKeypoints();
+          }
         })
         .catch((err) => {
           console.error("Error loading DICOM image: ", err);
@@ -61,8 +118,13 @@ function ImageViewer() {
           );
         });
     }
-  }, [imageData, applyTransformations, dispatch]);
-
+  }, [
+    imageData,
+    applyTransformations,
+    dispatch,
+    drawKeypoints,
+    analysisKeypoints,
+  ]);
   useEffect(() => {
     cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
     cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
@@ -94,10 +156,27 @@ function ImageViewer() {
         <Card raised>
           <Typography variant="h6">DICOM Image Viewer</Typography>
           <div
-            ref={imageElement}
-            style={{ width: "512px", height: "512px" }}
-            aria-label="DICOM Image Display Area"
-          ></div>
+            style={{ position: "relative", width: "512px", height: "512px" }}
+          >
+            <div
+              ref={imageElement}
+              style={{ width: "100%", height: "100%" }}
+              aria-label="DICOM Image Display Area"
+            ></div>
+            <canvas
+              ref={canvasRef}
+              width="512"
+              height="512"
+              style={{
+                position: "absolute",
+                top: "0",
+                left: "0",
+                width: "100%",
+                height: "100%",
+              }}
+              aria-label="Keypoint Overlay"
+            ></canvas>
+          </div>
           <Button onClick={() => handleRotate(45)}>Rotate Right</Button>
           <Button onClick={() => handleRotate(-45)}>Rotate Left</Button>
           <Button onClick={() => dispatch(resetTransformations())}>
@@ -122,9 +201,22 @@ function ImageViewer() {
             </Card>
           ))}
         </div>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={analysisKeypoints.length > 0}
+              onChange={() => {
+                analysisKeypoints.length <= 0
+                  ? handleAnalyzeImage("analyze")
+                  : handleAnalyzeImage();
+              }}
+            />
+          }
+          label="analysis mode"
+        />
       </Grid>
       <Snackbar
-        open={!!error}
+        open={!!error || analysisError}
         autoHideDuration={6000}
         onClose={() => dispatch(setImageError(null))}
         message={error || "Unknown error"}
