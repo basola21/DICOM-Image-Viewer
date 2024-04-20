@@ -5,11 +5,11 @@ import ImageViewer from "./components/ImageViewer";
 import ImageControls from "./components/ImageControls";
 
 function AppContent() {
-  const file = useSelector((state) => state.imageUpload.file); // Accessing the file state from imageUpload slice
+  const file = useSelector((state) => state.currentImage.currentImageData); // Accessing the file state from imageUpload slice
 
   return (
     <div className="mt-20 mx-20">
-      {!file && <ImageUploader />}
+      <ImageUploader />
       {file && (
         <>
           <ImageViewer />

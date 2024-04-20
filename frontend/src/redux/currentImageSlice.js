@@ -6,7 +6,15 @@ const initialState = {
   transformations: {
     rotate: 0,
     zoom: 1,
+    panX: 0,
+    panY: 0,
   },
+  effects: {
+    grayscale: false,
+    brightness: 100,
+    contrast: 100,
+  },
+  history: [],
   allImages: [],
   imagesError: null,
 };
@@ -22,27 +30,43 @@ export const currentImageSlice = createSlice({
       state.currentImageError = action.payload;
     },
     setTransformations: (state, action) => {
-      if (action.payload.rotate !== undefined) {
-        state.transformations.rotate += action.payload.rotate;
-      }
-      if (action.payload.zoom !== undefined) {
-        state.transformations.zoom = action.payload.zoom;
-      }
+      state.history.push({ ...state.transformations });
+      Object.keys(action.payload).forEach((key) => {
+        const newValue = action.payload[key];
+        if (newValue !== undefined) {
+          state.transformations[key] = newValue;
+        }
+      });
     },
     resetTransformations: (state) => {
-      state.transformations = { rotate: 0, zoom: 1 };
+      state.transformations = { rotate: 0, zoom: 1, panX: 0, panY: 0 };
+    },
+    setEffects: (state, action) => {
+      Object.keys(action.payload).forEach((key) => {
+        const newValue = action.payload[key];
+        if (newValue !== undefined) {
+          state.effects[key] = newValue;
+        }
+      });
+    },
+    resetEffects: (state) => {
+      state.effects = { grayscale: false, brightness: 100, contrast: 100 };
+    },
+    undoLastTransformation: (state) => {
+      if (state.history.length > 0) {
+        state.transformations = state.history.pop();
+      }
     },
     addImage: (state, action) => {
       state.allImages.push(action.payload);
     },
-    removeImageAndUpdateCurrent: (state, action) => {
-      state.allImages = state.allImages.filter(
-        (image) => image.filename !== action.payload,
-      );
-      const newSelectedImage = state.allImages[0] || null;
-      state.currentImageData = newSelectedImage
-        ? { filename: newSelectedImage.filename }
-        : null;
+    removeImage: (state) => {
+      if (state.currentImageData) {
+        state.allImages = state.allImages.filter(
+          (image) => image.filename !== state.currentImageData.filename,
+        );
+        state.currentImageData = state.allImages[0] || null;
+      }
     },
     updateImage: (state, action) => {
       const index = state.allImages.findIndex(
@@ -58,7 +82,9 @@ export const currentImageSlice = createSlice({
     clearImages: (state) => {
       state.allImages = [];
       state.imagesError = null;
-      state.currentImageData = null; // Also reset the current image data
+      state.currentImageData = null;
+      state.effects = { grayscale: false, brightness: 100, contrast: 100 };
+      state.history = [];
     },
   },
 });
@@ -68,10 +94,13 @@ export const {
   setImageError,
   setTransformations,
   resetTransformations,
+  setEffects,
+  undoLastTransformation,
   addImage,
-  removeImageAndUpdateCurrent,
+  removeImage,
   updateImage,
   clearImages,
+  resetEffects,
 } = currentImageSlice.actions;
 
 export default currentImageSlice.reducer;

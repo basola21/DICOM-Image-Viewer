@@ -1,53 +1,51 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
-  setImageError,
   setTransformations,
-  resetTransformations,
-  addImage,
-  updateImage,
-  removeImageAndUpdateCurrent,
+  setEffects,
   clearImages,
-  setImageError as setAllImagesError,
+  resetEffects,
 } from "../redux/currentImageSlice";
-import { resetUpload } from "../redux/imageUploadSlice";
-import { Slider, Typography, Grid, Button, TextField } from "@mui/material";
+import {
+  Slider,
+  Typography,
+  Grid,
+  Button,
+  Switch,
+  FormControlLabel,
+} from "@mui/material";
 
 function ImageControls() {
   const dispatch = useDispatch();
 
+  const effects = useSelector((state) => state.currentImage.effects);
+
+  const transformations = useSelector(
+    (state) => state.currentImage.transformations,
+  );
   const handleZoomChange = (event, newValue) => {
     dispatch(setTransformations({ zoom: newValue / 100 }));
   };
 
-  const handleRotate = (angle) => () => {
-    dispatch(setTransformations({ rotate: angle }));
+  const handlePanXChange = (event, newValue) => {
+    dispatch(setTransformations({ panX: newValue }));
   };
 
-  const handleResetTransfromations = () => {
-    dispatch(resetTransformations());
+  const handlePanYChange = (event, newValue) => {
+    dispatch(setTransformations({ panY: newValue }));
   };
+
   const handleReset = () => {
-    dispatch(resetUpload());
     dispatch(clearImages());
   };
-
-  const handleAddImage = () => {
-    const newImage = { id: Date.now(), filename: "newimage.dcm" }; // Example image object
-    dispatch(addImage(newImage));
-  };
-  const handleRemoveImage = (filename) => {
-    dispatch(removeImageAndUpdateCurrent(filename));
-  };
-  const handleUpdateImage = (id) => {
-    const updatedInfo = { id: id, data: { filename: "updatedimage.dcm" } }; // Example update
-    dispatch(updateImage(updatedInfo));
+  const handleEffectChange = (effect) => (event) => {
+    const value =
+      effect === "grayscale" ? event.target.checked : event.target.value;
+    dispatch(setEffects({ [effect]: value }));
   };
 
-  const handleError = (error) => {
-    dispatch(setImageError(error));
-    dispatch(setAllImagesError(error));
+  const handleResetEffects = () => {
+    dispatch(resetEffects());
   };
-
   return (
     <div>
       <Typography variant="h6">Image Controls</Typography>
@@ -55,6 +53,7 @@ function ImageControls() {
         <Grid item xs={12}>
           <Typography gutterBottom>Zoom</Typography>
           <Slider
+            value={transformations.zoom * 100}
             onChangeCommitted={handleZoomChange}
             aria-labelledby="zoom-slider"
             valueLabelDisplay="auto"
@@ -64,81 +63,79 @@ function ImageControls() {
             max={200}
           />
         </Grid>
+        <Grid item xs={6}>
+          <Typography gutterBottom>Pan Horizontal</Typography>
+          <Slider
+            value={transformations.panX}
+            onChangeCommitted={handlePanXChange}
+            aria-labelledby="pan-x-slider"
+            valueLabelDisplay="auto"
+            step={1}
+            marks
+            min={-100}
+            max={100}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <Typography gutterBottom>Pan Vertical</Typography>
+          <Slider
+            value={transformations.panY}
+            onChangeCommitted={handlePanYChange}
+            aria-labelledby="pan-y-slider"
+            valueLabelDisplay="auto"
+            step={1}
+            marks
+            min={-100}
+            max={100}
+          />
+        </Grid>
         <Grid item xs={12}>
-          <Typography gutterBottom>Rotate</Typography>
-          <Button variant="contained" onClick={handleRotate(45)}>
-            Rotate 45°
-          </Button>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={effects.grayscale}
+                onChange={handleEffectChange("grayscale")}
+              />
+            }
+            label="Grayscale"
+          />
+          <Slider
+            value={effects.brightness}
+            onChange={handleEffectChange("brightness")}
+            aria-labelledby="brightness-slider"
+            valueLabelDisplay="auto"
+            step={1}
+            min={50}
+            max={150}
+            label="Brightness"
+          />
+          <Slider
+            value={effects.contrast}
+            onChange={handleEffectChange("contrast")}
+            aria-labelledby="contrast-slider"
+            valueLabelDisplay="auto"
+            step={1}
+            min={50}
+            max={150}
+            label="Contrast"
+          />
           <Button
-            variant="contained"
-            onClick={handleRotate(-45)}
-            style={{ marginLeft: "10px" }}
+            variant="outlined"
+            onClick={handleResetEffects}
+            color="secondary"
+            style={{ marginTop: "20px" }}
           >
-            Rotate -45°
+            Reset Effects
           </Button>
         </Grid>
         <Grid item xs={12}>
-          <Button
-            variant="outlined"
-            onClick={handleResetTransfromations}
-            color="secondary"
-            style={{ marginTop: "20px", marginRight: "10px" }}
-          >
-            Reset Transformations
-          </Button>
           <Button
             variant="outlined"
             onClick={handleReset}
             color="secondary"
             style={{ marginTop: "20px" }}
           >
-            Reset Upload and Transformations
-          </Button>
-        </Grid>
-        <Grid item xs={12}>
-          <Button variant="contained" onClick={handleAddImage}>
-            Add Image
-          </Button>
-          <TextField
-            id="image-id"
-            label="Image ID"
-            variant="outlined"
-            size="small"
-            style={{ marginLeft: "10px" }}
-          />
-          <Button
-            variant="contained"
-            onClick={() =>
-              handleRemoveImage(document.getElementById("image-id").value)
-            }
-          >
-            Remove Image
-          </Button>
-          <Button
-            variant="contained"
-            onClick={() =>
-              handleUpdateImage(document.getElementById("image-id").value)
-            }
-            style={{ marginLeft: "10px" }}
-          >
-            Update Image
-          </Button>
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            id="error-text"
-            label="Error Message"
-            variant="outlined"
-            size="small"
-          />
-          <Button
-            variant="contained"
-            onClick={() =>
-              handleError(document.getElementById("error-text").value)
-            }
-            style={{ marginLeft: "10px" }}
-          >
-            Set Error
+            Reset All
           </Button>
         </Grid>
       </Grid>
