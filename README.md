@@ -144,6 +144,12 @@ This structure not only makes the backend easier to navigate but also simplifies
 
 The chosen organizational approach enhances the modularity of the application, facilitating easier updates and maintenance. By segregating models, schemas, and routes, the application is poised for scalable growth, accommodating new features and modifications with minimal disruptions to the existing codebase.
 
+### Docker 
+
+#### Optimization Strategy
+
+For the Docker configuration in this project, I have prioritized efficiency by selecting lighter images. This approach facilitates a quicker setup and reduces the overall disk space consumption, which can be particularly beneficial for users with limited system resources. These optimizations are part of our efforts to enhance user experience and ensure that the application is accessible and performant, even on lower-specification environments.
+
 ### Challenges and Solutions
 
 As a software engineer, encountering code issues and problems is a daily aspect of the job. While minor issues are commonplace and not worth noting, there are significant challenges that require substantial time and effort to resolve. One such challenge involved the Vite Rollup configuration in my React application.
