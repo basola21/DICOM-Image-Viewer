@@ -33,6 +33,16 @@ docker-compose build
 docker-compose up
 ```
 
+### Optional
+you can run the applicaiton outside docker by 
+
+1. remove the `IN_DOCKER` variable from the backend/.env
+2. make sure you have poetry installed
+3. navigate to the backend dirictory and run `poetry install`
+4. run `poetry shell` and then run `python run.py`
+5. in the frontend dirictory run `npm install` given you have npm
+6. run `npm run dev`
+
 Now, open your web browser and navigate to `http://localhost:8080` to start using the DICOM Image Viewer.
 
 #### Troubleshooting Errors
@@ -100,6 +110,17 @@ In React development, decomposing the application into smaller, manageable compo
 #### Constraints and Design Decisions
 
 The development of certain complex features consumed a significant portion of the allotted time, which necessitated some compromises in other areas of the project. Specifically, I had to scale back on refactoring efforts. While the current structure of the application is functional and not suboptimal, there was a missed opportunity to further optimize the architecture.
+
+#### Use of Cornerstone Library
+
+In this project, the Cornerstone library was utilized for handling .dcm images. While the library effectively meets the project's needs, I would like to offer some critical feedback on its implementation as suggested in their documentation.
+
+**Implementation Critique:**
+The Cornerstone documentation recommends using the `useRef` hook to directly link a DOM element, which the library then uses to attach the viewer. This direct DOM manipulation approach is generally discouraged in modern web development practices as it may bypass the React rendering lifecycle, potentially leading to future bugs and maintenance challenges.
+
+**Considerations for Small Applications:**
+However, it's important to acknowledge that in the context of a smaller-scale application like this one, the direct impact of such issues might be minimal. Therefore, while not ideal, this approach can be deemed acceptable for the current scope of the project but might require reconsideration as the application scales.
+
 
 #### Reflections on Improvements
 
