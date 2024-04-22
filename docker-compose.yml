@@ -10,6 +10,8 @@ services:
       - backend
     networks:
       - webnet
+    env_file:
+      - ./frontend/.env
 
   backend:
     build: ./backend/
@@ -17,6 +19,19 @@ services:
       - ./backend:/app
     ports:
       - "5100:5100"
+    depends_on:
+      - db
+    networks:
+      - webnet
+    env_file:
+      - ./backend/.env
+
+  db:
+    image: postgres:alpine
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./backend/.env
     networks:
       - webnet
 

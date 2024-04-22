@@ -86,6 +86,13 @@ export const currentImageSlice = createSlice({
       state.effects = { grayscale: false, brightness: 100, contrast: 100 };
       state.history = [];
     },
+    setAllImages: (state, action) => {
+      state.allImages = action.payload.allImages;
+      state.imagesError = null;
+      state.currentImageData = action.payload.currentImageData;
+      state.effects = { grayscale: false, brightness: 100, contrast: 100 };
+      state.history = [];
+    },
   },
 });
 
@@ -101,6 +108,7 @@ export const {
   updateImage,
   clearImages,
   resetEffects,
+  setAllImages,
 } = currentImageSlice.actions;
 
 export default currentImageSlice.reducer;

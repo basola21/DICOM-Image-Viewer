@@ -1,29 +1,21 @@
-import { Provider, useSelector } from "react-redux";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Provider } from "react-redux";
 import { store } from "./redux/store";
-import ImageUploader from "./components/ImageUploader";
-import ImageViewer from "./components/ImageViewer";
-import ImageControls from "./components/ImageControls";
-
-function AppContent() {
-  const file = useSelector((state) => state.currentImage.currentImageData); // Accessing the file state from imageUpload slice
-
-  return (
-    <div className="mt-20 mx-20">
-      <ImageUploader />
-      {file && (
-        <>
-          <ImageViewer />
-          <ImageControls />
-        </>
-      )}
-    </div>
-  );
-}
-
+import AppContent from "./AppContent";
+import Auth from "./components/Auth";
+import Sidebar from "./components/Sidebar";
 function App() {
   return (
     <Provider store={store}>
-      <AppContent />{" "}
+      <Router>
+        <div className="flex h-screen w-screen">
+          <Sidebar />
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/" element={<AppContent />} />
+          </Routes>
+        </div>
+      </Router>
     </Provider>
   );
 }
