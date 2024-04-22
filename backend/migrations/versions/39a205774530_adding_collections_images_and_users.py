@@ -1,8 +1,8 @@
 """adding collections, images and users
 
-Revision ID: f3157cc47e0d
+Revision ID: 39a205774530
 Revises: 
-Create Date: 2024-04-22 00:09:13.400875
+Create Date: 2024-04-22 11:03:05.050649
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'f3157cc47e0d'
+revision = '39a205774530'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,7 +21,7 @@ def upgrade():
     op.create_table('users',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('email', sa.String(length=120), nullable=False),
-    sa.Column('password_hash', sa.String(length=128), nullable=False),
+    sa.Column('password_hash', sa.String(length=255), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )
@@ -36,7 +36,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('file_path', sa.String(length=120), nullable=False),
     sa.Column('collection_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['collection_id'], ['collections.id'], ),
+    sa.ForeignKeyConstraint(['collection_id'], ['collections.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     # ### end Alembic commands ###

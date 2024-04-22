@@ -1,16 +1,10 @@
 #!/bin/bash
 
-# Wait for PostgreSQL to be available
-echo "Waiting for PostgreSQL to start..."
-while ! nc -z db 5432; do
-	sleep 0.1
-done
-echo "PostgreSQL started"
-
 # Run database migrations
 echo "Running database migrations..."
+flask db migrate -m "adding collections, images and users"
 flask db upgrade
 
-# Start command specified in CMD
-echo "Starting application..."
+# Execute the main command (e.g., starting the Flask server)
+echo "Starting the application..."
 exec "$@"

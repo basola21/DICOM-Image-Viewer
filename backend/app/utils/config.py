@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 SECRET_KEY = os.getenv("SECRET_KEY", "very_secrect")
+
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 
@@ -26,5 +27,5 @@ class Config:
 
     if os.getenv("IN_DOCKER", "False") == "True":
         SQLALCHEMY_DATABASE_URI = os.getenv(
-            "DATABASE_URL", "postgresql://db:postgres@postgres:5432/postgres"
+            "DATABASE_URL", "postgresql://postgres:postgres@db:5432/postgres"
         )

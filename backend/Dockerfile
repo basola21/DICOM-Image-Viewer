@@ -1,8 +1,7 @@
 FROM python:3.11-slim
 
 RUN pip install poetry
-RUN apt-get update && apt-get install ffmpeg libglib2.0-0 libsm6 libxrender1 libxext6 netcat -y  # Added netcat for entrypoint.sh
-
+RUN apt-get update && apt-get install ffmpeg libglib2.0-0 libsm6 libxrender1 libxext6 -y  
 WORKDIR /app
 
 COPY pyproject.toml poetry.lock* /app/
